@@ -11,6 +11,8 @@ setup(
     entry_points={
         "console_scripts": [
             "gopuTN=engine:main",
+            "gotn=gopuTN.gotn.cli:main",
+            "goputn=engine:main",
         ],
     },
     classifiers=[

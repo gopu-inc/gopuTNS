@@ -1,3 +1,5 @@
 [console_scripts]
 gopuTN = engine:main
+goputn = engine:main
+gotn = gopuTN.gotn.cli:main
 

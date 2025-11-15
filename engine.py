@@ -190,7 +190,7 @@ def main():
     print(f"Moteur gopuTN lancé 🚀  (storage: {STORAGE_DIR})")
     print("Tips: '--version', '--help', 'init', 'ws', 'config get', 'config set', 'history show', 'print mode output|json'")
     while True:
-        cmd = input("gopuTN > ").strip()
+        cmd = input("gopuTN🐨 > ").strip()
         if not cmd:
             continue
         if cmd in ("exit", "quit"):
