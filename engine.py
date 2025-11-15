@@ -1,12 +1,29 @@
 #!/usr/bin/env python3
-import os, json, time, asyncio, requests, websockets
+import os, sys, json, time, asyncio, requests, websockets
 from datetime import datetime
+
+VERSION = "0.2.0"
+HELP_TEXT = """
+gopuTN — moteur CLI pour gopHub
+
+Usage:
+  gopuTN                 Lance le moteur interactif
+  gopuTN --version       Affiche la version
+  gopuTN --help          Affiche cette aide
+  gopuTN init            Initialise le dossier .goputn
+  gopuTN ws              Lance une session interactive WebSocket
+  gopuTN <commande>      Exécute une commande via HTTP
+
+Meta commandes (dans la boucle interactive):
+  config get|set         Gérer la configuration
+  history show|clear     Voir ou vider l'historique
+  print mode output|json Choisir l'affichage
+"""
 
 # ------------------------
 # Dossier de sauvegarde
 # ------------------------
 def resolve_storage_dir():
-    # Priorité: dossier local .goputn, sinon HOME/.goputn
     local_dir = os.path.join(os.getcwd(), ".goputn")
     if os.path.isdir(local_dir) or not os.path.isdir(os.path.expanduser("~/.goputn")):
         return local_dir
@@ -16,15 +33,12 @@ STORAGE_DIR = os.environ.get("GOPUTN_DIR", resolve_storage_dir())
 CONFIG_PATH = os.path.join(STORAGE_DIR, "config.json")
 HISTORY_PATH = os.path.join(STORAGE_DIR, "history.log")
 
-# ------------------------
-# Config par défaut
-# ------------------------
 DEFAULT_CONFIG = {
     "server": "https://terminalgo.onrender.com",
     "ws_path": "/terminal/ws",
     "http_path": "/terminal",
-    "history_limit": 500,   # nb lignes dans history.log avant rotation
-    "print_mode": "json"    # json | output
+    "history_limit": 500,
+    "print_mode": "json"
 }
 
 def ensure_storage():
@@ -39,7 +53,6 @@ def load_config():
     ensure_storage()
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         cfg = json.load(f)
-    # merge avec defaults si nouveaux champs
     for k, v in DEFAULT_CONFIG.items():
         cfg.setdefault(k, v)
     return cfg
@@ -54,16 +67,6 @@ def append_history(entry: dict):
     line = json.dumps(entry, ensure_ascii=False)
     with open(HISTORY_PATH, "a", encoding="utf-8") as f:
         f.write(line + "\n")
-    # rotation simple si trop long
-    try:
-        with open(HISTORY_PATH, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-        cfg = load_config()
-        if len(lines) > cfg.get("history_limit", 500):
-            with open(HISTORY_PATH, "w", encoding="utf-8") as f:
-                f.writelines(lines[-cfg["history_limit"]:])
-    except Exception:
-        pass
 
 # ------------------------
 # HTTP /terminal
@@ -120,10 +123,19 @@ async def run_ws(cfg: dict):
 # Commandes utilitaires
 # ------------------------
 def handle_meta(cmd: str, cfg: dict):
-    # config set server https://...
     parts = cmd.split()
+    if cmd in ("--version", "-v"):
+        print(f"gopuTN version {VERSION}")
+        return True
+    if cmd in ("--help", "-h"):
+        print(HELP_TEXT)
+        return True
+    if cmd == "init":
+        ensure_storage()
+        print(f"Dossier {STORAGE_DIR} initialisé avec config et history.")
+        append_history({"mode": "meta", "action": "init"})
+        return True
     if parts[:2] == ["config", "get"]:
-        # ex: config get server
         key = parts[2] if len(parts) > 2 else None
         if key:
             print(json.dumps({key: cfg.get(key)}, indent=2, ensure_ascii=False))
@@ -131,7 +143,6 @@ def handle_meta(cmd: str, cfg: dict):
             print(json.dumps(cfg, indent=2, ensure_ascii=False))
         return True
     if parts[:2] == ["config", "set"] and len(parts) >= 4:
-        # ex: config set server https://...
         key = parts[2]
         value = " ".join(parts[3:])
         cfg[key] = value
@@ -142,7 +153,7 @@ def handle_meta(cmd: str, cfg: dict):
     if cmd == "history show":
         try:
             with open(HISTORY_PATH, "r", encoding="utf-8") as f:
-                lines = f.readlines()[-50:]  # montrer les 50 dernières lignes
+                lines = f.readlines()[-50:]
             print("— Dernières entrées history.log —")
             for ln in lines:
                 print(ln.rstrip())
@@ -158,7 +169,6 @@ def handle_meta(cmd: str, cfg: dict):
             print(f"Erreur clear history: {str(e)}")
         return True
     if parts[:2] == ["print", "mode"] and len(parts) == 3:
-        # ex: print mode output | json
         val = parts[2]
         if val in ("output", "json"):
             cfg["print_mode"] = val
@@ -178,7 +188,7 @@ def main():
     ensure_storage()
     cfg = load_config()
     print(f"Moteur gopuTN lancé 🚀  (storage: {STORAGE_DIR})")
-    print("Tips: 'ws' pour session interactive, 'config get', 'config set', 'history show', 'print mode output|json'")
+    print("Tips: '--version', '--help', 'init', 'ws', 'config get', 'config set', 'history show', 'print mode output|json'")
     while True:
         cmd = input("gopuTN > ").strip()
         if not cmd:
@@ -193,7 +203,6 @@ def main():
             print("Session interactive ouverte 🚀 (WebSocket)")
             asyncio.run(run_ws(cfg))
             continue
-        # Commande standard via HTTP
         out = run_http(cmd, cfg)
         print(out)
 
