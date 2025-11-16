@@ -2,7 +2,7 @@
 import os, sys, json, time, asyncio, requests, websockets
 from datetime import datetime
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 HELP_TEXT = """
 gopuTN — moteur CLI pour gopHub
 
