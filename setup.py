@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="goputn",
-    version="0.2.0",
+    version="0.3.0",
     description="Moteur gopuTN — terminal client pour gopHub",
     author="Ceose",
     packages=find_packages(),
