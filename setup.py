@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
-import os, sys, json, urllib.request
+import urllib.request, json
 
-PACKAGE_NAME = "gopuTN"
-VERSION = "0.3.0"
+PACKAGE_NAME = "goputn"
+VERSION = "0.3.1"
 
 # Vérifier la version sur PyPI et incrémenter si nécessaire
 try:
@@ -29,10 +29,8 @@ setup(
             "gotn=gopuTN.gotn.cli:main",
         ],
     },
-    install_requires=[],
     description="Branded runtime with gopuTN, goputn, gotn commands",
     author="Ceose",
-    author_email="contact@example.com",
     url="https://github.com/gopu-inc/gopuTNS",
     classifiers=[
         "Programming Language :: Python :: 3",
