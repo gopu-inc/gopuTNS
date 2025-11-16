@@ -1,0 +1,6 @@
+setup.py
+gotn.egg-info/PKG-INFO
+gotn.egg-info/SOURCES.txt
+gotn.egg-info/dependency_links.txt
+gotn.egg-info/entry_points.txt
+gotn.egg-info/top_level.txt

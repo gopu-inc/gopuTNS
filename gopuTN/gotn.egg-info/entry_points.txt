@@ -1,0 +1,3 @@
+[console_scripts]
+gotn = gotn.cli:main
+

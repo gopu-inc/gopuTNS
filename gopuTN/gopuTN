@@ -1,0 +1,8 @@
+nstruction } ;
+instruction  = keyword , arguments ;
+keyword      = "REC" | "DO" | "BY" | "PUT" | "LOC" | "SET" | "ASK" | "SPA" | "GO" | "IN" | "BOX" | "WHO" | "TAG" | "TRIG" | "SHL" | "SIG" | "MED" ;
+arguments    = { string | list | keyvalue } ;
+string       = '"' , { character } , '"' ;
+list         = "[" , { string } , "]" ;
+keyvalue     = identifier , "=" , string ;
+

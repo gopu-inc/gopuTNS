@@ -1,0 +1,6 @@
+REC python:3.12
+LOC /app
+BY app.py /app/
+DO pip install .
+NET 8000
+GO ["python3", "app.py"]

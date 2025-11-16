@@ -1,0 +1,7 @@
+REC python:latest
+LOC /env
+DO apt-get update && apt-get install -y python3 python3-pip
+DO apk add python
+DO pip install --upgrade pip setuptools wheel
+NET 0
+GO ["python3", "--version"]
